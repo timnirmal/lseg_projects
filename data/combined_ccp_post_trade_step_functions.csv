@@ -1,0 +1,17 @@
+Step Function,Step Parameters,Table Parameters,Description
+Given the initial trade details:valueTable,,"Trade ID, Security Type, Quantity, Price","Sets the initial details of a trade including trade ID, security type, quantity, and price."
+When the trade is matched:valueTable,,"Trade ID, Match Status",Records the matching status of a trade by its trade ID.
+Then the trade status should be updated:valueTable,,"Trade ID, New Status",Verifies that the trade status has been updated according to the matching results.
+Given the current margin requirements:valueTable,,"Account ID, Required Margin",Sets the initial margin requirements for a given account.
+When margin is posted by the member:valueTable,,"Account ID, Margin Amount",Records the posting of margin by a member for a specific account.
+Then the margin balance should be:valueTable,,"Account ID, Updated Margin Balance",Checks that the margin balance for an account is correctly updated after margin posting.
+Given the current position:valueTable,,"Account ID, Security Type, Quantity",Sets the initial position for a given account in terms of security type and quantity.
+When a position adjustment is made:valueTable,,"Account ID, Security Type, Adjustment Quantity",Records an adjustment made to the position of an account.
+Then the updated position should be:valueTable,,"Account ID, Security Type, Updated Quantity",Verifies the updated position of an account after an adjustment.
+Given the default fund contribution:valueTable,,"Member ID, Contribution Amount",Sets the initial contribution to the default fund by a member.
+Given the trade with ID <trade_id> and type <type>,"trade_id, type",,Sets the context with a specific trade using its ID and type.
+When the trade <trade_id> is settled for <amount>,"trade_id, amount",,Records the settlement of a specific trade by its ID for a specified amount.
+Then verify the settlement amount for trade <trade_id> is <amount>,"trade_id, amount",,Checks that the settlement amount for the given trade ID matches the expected amount.
+Given the account <account_id> has a balance of <balance>,"account_id, balance",,Initializes the scenario with a given account's balance.
+When <amount> is debited from account <account_id>,"amount, account_id",,Records the action of debiting a specified amount from a given account.
+Then the new balance of account <account_id> should be <new_balance>,"account_id, new_balance",,Verifies the updated balance of the specified account after a debit action.

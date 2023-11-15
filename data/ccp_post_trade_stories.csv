@@ -1,0 +1,31 @@
+Story,Acceptance Criteria,Gherkin Executable
+Trade Settlement Verification,1. Trade should be initialized with specific details. 2. Settlement of trade should be recorded. 3. Settlement amount should be verified.,"
+        Feature: Verifying Trade Settlement Process
+          Scenario: Successful trade settlement
+            Given the following trade details are available
+              | Trade ID | Security Type | Quantity | Price |
+              | TRD123   | Equity        | 100      | 50    |
+            And the trade with ID TRD123 and type Equity
+            When the trade TRD123 is settled for 5000
+            Then verify the settlement amount for trade TRD123 is 5000
+        "
+Margin Balance Management,1. Initial margin requirement setting. 2. Margin posting by members. 3. Margin balance update. 4. Margin balance verification.,"
+        Feature: Managing Margin Balances for Member Accounts
+          Scenario: Updating margin balance after member posting
+            Given the current margin requirements
+              | Account ID | Required Margin |
+              | ACC001     | 10000          |
+            When margin is posted by the member
+              | Account ID | Margin Amount |
+              | ACC001     | 2000         |
+            Then the margin balance should be
+              | Account ID | Updated Margin Balance |
+              | ACC001     | 12000                 |
+        "
+Account Balance Management,1. Initial account balance accuracy. 2. Transaction recording. 3. Balance update after transactions. 4. Balance verification.,"
+        Feature: Accurate Tracking of Account Balances
+          Scenario: Account balance update after a debit transaction
+            Given the account ACC234 has a balance of 5000
+            When 1000 is debited from account ACC234
+            Then the new balance of account ACC234 should be 4000
+        "
