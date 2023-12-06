@@ -1,11 +1,11 @@
 from collections import Counter
 
-from step_analyze.dataset import int_list
+from step_analyze.dataset import int_list_increased
 
 
 def get_flat_list():
     # Flatten the list of lists
-    flat_list = [num for sublist in int_list for num in sublist]
+    flat_list = [num for sublist in int_list_increased for num in sublist]
     return flat_list
 
 

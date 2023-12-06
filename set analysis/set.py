@@ -1,5 +1,7 @@
 from step_analyze.dataset import int_list, int_list_increased
 import pandas as pd
+from ast import literal_eval
+
 
 df = pd.read_csv('../step_analyze/step_list.csv')
 
@@ -56,54 +58,65 @@ def remove_redundant_subsequences(subsequences):
     return subsequences
 
 
-int_list_increased = int_list_increased[0:10]
+# int_list_increased = int_list_increased[0:10]
 
-# Large set to store all subsequences across lists
-all_subsequences = {}
+# # Large set to store all subsequences across lists
+# all_subsequences = {}
+#
+# for lst in int_list_increased:
+#     subseq_counts = generate_subsequences_with_counts(lst)
+#
+#     # Sorting each list's subsequences by their lengths
+#     sorted_subseq_counts = {k: v for k, v in sorted(subseq_counts.items(), key=lambda item: len(item[0]))}
+#
+#     # Merge with the large set
+#     for subseq, count in sorted_subseq_counts.items():
+#         all_subsequences[subseq] = all_subsequences.get(subseq, 0) + count
+#
+# # The large set of all subsequences across lists with counts
+# print(all_subsequences)
+# print(len(all_subsequences))
+#
+# def create_dataframe(dictionary, column_names, save_to_csv=False, file_name='subsequences.csv'):
+#     # Create a DataFrame from a dictionary
+#     df = pd.DataFrame.from_dict(dictionary, orient='index', columns=column_names)
+#     if save_to_csv:
+#         df.to_csv(file_name)
+#         print(f"DataFrame saved to {file_name}")
+#     return df
 
-for lst in int_list_increased:
+
+
+def generate_subsequences_with_counts_for_df(row):
+    lst = eval(row['step_list'])  # Convert string representation of list back to list
     subseq_counts = generate_subsequences_with_counts(lst)
+    return subseq_counts
 
-    # Sorting each list's subsequences by their lengths
-    sorted_subseq_counts = {k: v for k, v in sorted(subseq_counts.items(), key=lambda item: len(item[0]))}
+# Apply the function to each row and store the result in a new column
+df['subsequences'] = df.apply(generate_subsequences_with_counts_for_df, axis=1)
 
-    # Merge with the large set
-    for subseq, count in sorted_subseq_counts.items():
-        all_subsequences[subseq] = all_subsequences.get(subseq, 0) + count
-
-# The large set of all subsequences across lists with counts
-print(all_subsequences)
-print(len(all_subsequences))
-
-def create_dataframe(dictionary, column_names, save_to_csv=False, file_name='subsequences.csv'):
-    # Create a DataFrame from a dictionary
-    df = pd.DataFrame.from_dict(dictionary, orient='index', columns=column_names)
-    if save_to_csv:
-        df.to_csv(file_name)
-        print(f"DataFrame saved to {file_name}")
-    return df
+# save to csv
+df.to_csv('subsequences.csv')
 
 
 
-# # add to dataframe and column names as subsequence and count
-# df = pd.DataFrame(list(all_subsequences.items()), columns=['subsequence', 'count'])
+from collections import defaultdict
 
-# # save to csv
-# df.to_csv('subsequences.csv')
+# Dictionary to store subsequences and their associated LCH_index IDs
+subsequences_with_ids = defaultdict(list)
 
-# sort by value
-sorted_all_subsequences = {k: v for k, v in sorted(all_subsequences.items(), key=lambda item: item[1], reverse=True)}
+for index, row in df.iterrows():
+    for subseq in row['subsequences']:
+        subsequences_with_ids[subseq].append(row['LCH_index'])
 
-# Print the sorted list
-print(sorted_all_subsequences)
-print(len(sorted_all_subsequences))
+# Convert to a DataFrame
+subseq_df = pd.DataFrame(list(subsequences_with_ids.items()), columns=['Subsequence', 'LCH_index_List'])
 
-# now lets say we have (112, 112, 112): 16, so we can remove (112, 112): , (112,):
-# like that (151, 160, 151): 16, so we can remove (151, 160): , (151,):, (160,):, (160, 151):
+# Optionally, you can also include the count of each subsequence
+subseq_df['Count'] = subseq_df['LCH_index_List'].apply(len)
 
-# Remove redundant subsequences
-cleaned_subsequences = remove_redundant_subsequences(sorted_all_subsequences)
+# Sorting the DataFrame by count (optional)
+subseq_df = subseq_df.sort_values(by='Count', ascending=False)
 
-# Print the cleaned list
-print(cleaned_subsequences)
-print(len(cleaned_subsequences))
+# Save to CSV
+subseq_df.to_csv('subsequences_with_ids.csv')

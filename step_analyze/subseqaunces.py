@@ -3,7 +3,7 @@ import networkx as nx
 import pandas as pd
 import plotly.graph_objects as go
 
-from step_analyze.dataset import int_list as mccp_ids
+from step_analyze.dataset import int_list_increased as mccp_ids
 from step_analyze.line_analysis import not_used
 
 
@@ -175,6 +175,9 @@ def plot_adjacency_matrix(adj_matrix, nodelist):
     plt.title('Adjacency Matrix with Node Labels')
     plt.xlabel('Target Node')
     plt.ylabel('Source Node')
+
+    # save
+    plt.savefig('adjacency_matrix.png')
 
     plt.show()
 
