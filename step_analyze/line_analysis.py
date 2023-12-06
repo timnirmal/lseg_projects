@@ -1,11 +1,13 @@
+from collections import Counter
+
 from step_analyze.dataset import int_list
 
-from collections import Counter
 
 def get_flat_list():
     # Flatten the list of lists
     flat_list = [num for sublist in int_list for num in sublist]
     return flat_list
+
 
 def not_used():
     flat_list = get_flat_list()
@@ -14,7 +16,7 @@ def not_used():
     missing_list = []
 
     # the numbers are from 1 - 172. But some are missing find them
-    for i in range(1, 173):
+    for i in range(0, 171):
         if i not in flat_list:
             missing_list.append(i)
             count += 1
@@ -44,7 +46,6 @@ def frequency_analysis():
         # print(f"Number {number} appears {frequency[number]} times")
         # add to dictionary
         freq_dict[number] = frequency[number]
-
 
     return freq_dict
 
