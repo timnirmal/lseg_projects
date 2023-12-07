@@ -99,21 +99,26 @@ df['subsequences'] = df.apply(generate_subsequences_with_counts_for_df, axis=1)
 df.to_csv('subsequences.csv')
 
 
-
 from collections import defaultdict
 
-# Dictionary to store subsequences and their associated LCH_index IDs
-subsequences_with_ids = defaultdict(list)
+# Dictionary to store subsequences, their associated LCH_index IDs, and counts
+subsequences_with_ids_and_counts = defaultdict(lambda: defaultdict(int))
 
 for index, row in df.iterrows():
-    for subseq in row['subsequences']:
-        subsequences_with_ids[subseq].append(row['LCH_index'])
+    LCH_index = row['LCH_index']
+    subseq_counts = row['subsequences']
+    for subseq, count in subseq_counts.items():
+        subsequences_with_ids_and_counts[subseq][LCH_index] += count
 
 # Convert to a DataFrame
-subseq_df = pd.DataFrame(list(subsequences_with_ids.items()), columns=['Subsequence', 'LCH_index_List'])
+subseq_list = []
+for subseq, LCH_counts in subsequences_with_ids_and_counts.items():
+    LCH_index_list = list(LCH_counts.keys())
+    total_count = sum(LCH_counts.values())
+    subseq_list.append({'Subsequence': subseq, 'LCH_index_List': LCH_index_list,
+                        'LCH_index_Count_List': dict(LCH_counts), 'Count': total_count})
 
-# Optionally, you can also include the count of each subsequence
-subseq_df['Count'] = subseq_df['LCH_index_List'].apply(len)
+subseq_df = pd.DataFrame(subseq_list)
 
 # Sorting the DataFrame by count (optional)
 subseq_df = subseq_df.sort_values(by='Count', ascending=False)

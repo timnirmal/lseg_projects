@@ -1,29 +1,38 @@
 import pandas as pd
+import ast
+from tqdm import tqdm  # Import tqdm
 
+# Load the DataFrame
 subseq_df = pd.read_csv('subsequences_with_ids.csv')
 
-# Convert string representation of tuples back to actual tuples
-subseq_df['Subsequence'] = subseq_df['Subsequence'].apply(eval)
+# Convert string representations back to their original data types
+subseq_df['Subsequence'] = subseq_df['Subsequence'].apply(ast.literal_eval)
+subseq_df['LCH_index_Count_List'] = subseq_df['LCH_index_Count_List'].apply(ast.literal_eval)
 
-# Function to check if subsequence is part of any larger subsequence
-def is_subsequence_in_larger(subseq, larger_subseqs, lch_indices):
-    for larger_subseq in larger_subseqs:
-        if set(subseq).issubset(set(larger_subseq)) and set(lch_indices).issubset(set(subseq_df[subseq_df['Subsequence'] == larger_subseq]['LCH_index_List'].iloc[0])):
-            return True
-    return False
+def reduce_subsequence_counts(df):
+    # Dictionary to hold updated counts
+    updated_counts = {row['Subsequence']: row['LCH_index_Count_List'].copy() for index, row in df.iterrows()}
 
-# Filtering the DataFrame
-filtered_subsequences = []
-for index, row in subseq_df.iterrows():
-    subseq = row['Subsequence']
-    lch_indices = row['LCH_index_List']
-    larger_subseqs = subseq_df[subseq_df['Count'] >= row['Count']]['Subsequence']
+    # Iterate through the DataFrame with tqdm for a progress bar
+    for index, row in tqdm(df.iterrows(), total=df.shape[0], desc="Processing Rows"):
+        subseq = row['Subsequence']
+        for longer_index, longer_row in df.iterrows():
+            longer_subseq = longer_row['Subsequence']
+            if len(longer_subseq) > len(subseq) and all(item in longer_subseq for item in subseq):
+                for LCH_index, count in updated_counts[subseq].items():
+                    if LCH_index in longer_row['LCH_index_Count_List'] and count <= longer_row['LCH_index_Count_List'][LCH_index]:
+                        updated_counts[subseq][LCH_index] -= count
 
-    if not is_subsequence_in_larger(subseq, larger_subseqs, lch_indices):
-        filtered_subsequences.append(row)
+    # Update the DataFrame
+    for index, row in tqdm(df.iterrows(), total=df.shape[0], desc="Updating DataFrame"):
+        subseq = row['Subsequence']
+        df.at[index, 'LCH_index_Count_List'] = updated_counts[subseq]
+        df.at[index, 'Count'] = sum(updated_counts[subseq].values())
 
-# Creating a new DataFrame from the filtered list
-filtered_subseq_df = pd.DataFrame(filtered_subsequences)
+    return df
+
+# Apply the function to the DataFrame
+refined_df = reduce_subsequence_counts(subseq_df)
 
 # Save the resulting DataFrame
-filtered_subseq_df.to_csv('filtered_subsequences.csv', index=False)
+refined_df.to_csv('refined_subsequences.csv', index=False)
