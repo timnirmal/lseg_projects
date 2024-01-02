@@ -9,6 +9,7 @@ subseq_df = pd.read_csv('subsequences_with_ids.csv')
 subseq_df['Subsequence'] = subseq_df['Subsequence'].apply(ast.literal_eval)
 subseq_df['LCH_index_Count_List'] = subseq_df['LCH_index_Count_List'].apply(ast.literal_eval)
 
+
 def reduce_subsequence_counts(df):
     # Dictionary to hold updated counts
     updated_counts = {row['Subsequence']: row['LCH_index_Count_List'].copy() for index, row in df.iterrows()}
@@ -20,7 +21,8 @@ def reduce_subsequence_counts(df):
             longer_subseq = longer_row['Subsequence']
             if len(longer_subseq) > len(subseq) and all(item in longer_subseq for item in subseq):
                 for LCH_index, count in updated_counts[subseq].items():
-                    if LCH_index in longer_row['LCH_index_Count_List'] and count <= longer_row['LCH_index_Count_List'][LCH_index]:
+                    if LCH_index in longer_row['LCH_index_Count_List'] and count <= longer_row['LCH_index_Count_List'][
+                        LCH_index]:
                         updated_counts[subseq][LCH_index] -= count
 
     # Update the DataFrame
@@ -30,6 +32,7 @@ def reduce_subsequence_counts(df):
         df.at[index, 'Count'] = sum(updated_counts[subseq].values())
 
     return df
+
 
 # Apply the function to the DataFrame
 refined_df = reduce_subsequence_counts(subseq_df)
